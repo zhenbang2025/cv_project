@@ -24,13 +24,13 @@ def get_phrases_idx(tokenizer, phrases, prompt):
     return res
 
 
-base_model_path = "/path/to/your/model"
-image_encoder_path = "/path/to/your/image_encoder"
+base_model_path = "/home/rjiangas/models/stabilityai/stable-diffusion-xl-base-1.0"
+image_encoder_path = "/home/rjiangas/models/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
 device = "cuda"
 result_path = "./res"
 log_id = "test"
-load_type = "checkpoint-xxxxxx"
-ms_ckpt = f"./output/{log_id}/{load_type}/ms_adapter.bin"
+load_type = "/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
+ms_ckpt = f"/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
 
 image_processor = CLIPImageProcessor()
 
