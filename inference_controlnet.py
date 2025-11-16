@@ -91,14 +91,16 @@ phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
 eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
 print(phrase_idxes, eot_idxes)
 
-images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
-                           prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
-                           image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
-                           phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024, 
-                           image=control_image, controlnet_conditioning_scale=controlnet_conditioning_scale)
 
-save_name = "dog_depth"
-save_path = os.path.join(result_path, log_id, load_type, save_name)
-os.makedirs(save_path, exist_ok=True)
-for i, image in enumerate(images):
-    image.save(os.path.join(save_path, f"{i}.jpg"))
+def ms_sd_generate_image(input_images,prompt,phrases,controlnet_conditioning_scale):
+    images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
+                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
+                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
+                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024, 
+                            image=control_image, controlnet_conditioning_scale=controlnet_conditioning_scale)
+
+    save_name = "dog_depth"
+    save_path = os.path.join(result_path, log_id, load_type, save_name)
+    os.makedirs(save_path, exist_ok=True)
+    for i, image in enumerate(images):
+        image.save(os.path.join(save_path, f"{i}.jpg"))
