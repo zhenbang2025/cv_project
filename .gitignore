@@ -3,7 +3,9 @@
 # outputs
 /logs/
 /output/
-/res/
 
 # compiled files
 __pycache__/
+
+
+*_test*
