@@ -9,3 +9,9 @@ __pycache__/
 
 
 *_test*
+
+*.out
+
+test.py
+
+*.sbatch
