@@ -1,4 +1,4 @@
-## <div align="center"> <i>MS-Diffusion</i>: CV project based on Multi-subject Zero-shot Image Personalization with Layout Guidance </div>
+## <div align="center"> CV project based on Multi-subject Zero-shot Image Personalization with Layout Guidance </div>
 
 <div align="center">
 
