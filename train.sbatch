@@ -8,10 +8,9 @@
 
 module purge
 module load Anaconda3/2023.09-0
-
+echo "=== Job Start: $(date) ==="
 source activate ms_sd_infer
-pip install 'accelerate>=0.26.0'
 # 卸载当前版本
 
-python dual_vlm_sd.py
+python pipeline.py
 # nvidia-smi

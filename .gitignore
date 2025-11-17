@@ -7,3 +7,9 @@
 
 # compiled files
 __pycache__/
+
+
+*dy*
+examples/canny_douyin_dataset
+
+yolov8m.pt

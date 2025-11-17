@@ -27,15 +27,14 @@ def get_phrases_idx(tokenizer, phrases, prompt):
 base_model_path = "/home/rjiangas/models/stabilityai/stable-diffusion-xl-base-1.0"
 image_encoder_path = "/home/rjiangas/models/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
 device = "cuda"
-result_path = "./res"
-log_id = "test"
+# log_id = "test"
 load_type = "/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
 ms_ckpt = f"/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
 
 image_processor = CLIPImageProcessor()
 
 # controlnet
-controlnet_path = "/path/to/your/controlnet"
+controlnet_path = "/home/rjiangas/models/diffusers/controlnet-canny-sdxl-1.0"
 # load SDXL pipeline
 controlnet = ControlNetModel.from_pretrained(controlnet_path, variant="fp16", use_safetensors=True, torch_dtype=torch.float16).to(device)
 pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
@@ -67,40 +66,45 @@ image_proj_model = Resampler(
 ms_model = MSAdapter(pipe.unet, image_proj_model, ckpt_path=ms_ckpt, device=device, num_tokens=num_tokens)
 ms_model.to(device, dtype=torch.float16)
 
-image0 = Image.open("./examples/example_dog.jpg")
-image1 = Image.open("./examples/example_cat.jpg")
-input_images = [image0]
-# input_images = [image0, image1]
-input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
-control_image = Image.open("./examples/depth.png").resize((1024, 1024))
+def ms_sd_generate_image(input_images,prompt,phrases,controlnet_conditioning_scale,msadapter_scale,control_image,boxes,result_path= "./res",save_name = "dog_depth"):
+    # used to get the attention map, return zero if the phrase is not in the prompt
+    drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
+    phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
+    eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
+    print(phrase_idxes, eot_idxes)
 
-# generation configs
-num_samples = 5
-prompt = "best quality, high quality, a dog on the beach"
-print(prompt)
-boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
-# boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
-# boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
-phrases = [["dog"]]
-# phrases = [["dog", "cat"]]
-drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
-controlnet_conditioning_scale = 0.7
-
-# used to get the attention map, return zero if the phrase is not in the prompt
-phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
-eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
-print(phrase_idxes, eot_idxes)
-
-
-def ms_sd_generate_image(input_images,prompt,phrases,controlnet_conditioning_scale):
-    images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
-                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
+    images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=5, num_inference_steps=30, seed=0,
+                            prompt=[prompt], scale=msadapter_scale, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
                             image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
                             phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024, 
                             image=control_image, controlnet_conditioning_scale=controlnet_conditioning_scale)
-
-    save_name = "dog_depth"
-    save_path = os.path.join(result_path, log_id, load_type, save_name)
+    
+    save_path = os.path.join(result_path, save_name)
     os.makedirs(save_path, exist_ok=True)
     for i, image in enumerate(images):
         image.save(os.path.join(save_path, f"{i}.jpg"))
+
+
+if __name__ == "__main__":
+    image0 = Image.open("./examples/example_dog.jpg")
+    image1 = Image.open("./examples/example_cat.jpg")
+    # input_images = [image0]
+    input_images = [image0, image1]
+    input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
+
+    # generation configs
+    num_samples = 5
+    # prompt = "best quality, high quality, a dog on the beach"
+    prompt = "best quality, high quality, a dog and cat on the beach"
+
+    print(prompt)
+    boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+    boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
+    # boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
+    # phrases = [["dog"]]
+    phrases = [["dog", "cat"]]
+    controlnet_conditioning_scale = 0.7
+    msadapter_scale = 0.6
+    control_image = Image.open("./res/canny/dog_cat_2.jpg").resize((1024, 1024))
+
+    ms_sd_generate_image(input_images,prompt,phrases,controlnet_conditioning_scale,msadapter_scale,control_image,boxes)
