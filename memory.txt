@@ -1,1 +1,0 @@
-diffusers/controlnet-canny-sdxl-1.0
