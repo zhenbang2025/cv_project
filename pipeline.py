@@ -115,13 +115,5 @@ for i in range(len(msadapter_scales)):
         save_name = f'controlnet_conditioning_scale_{controlnet_conditioning_scales[j]}_{msadapter_scales[i]}_experiment_1_three_objects_1_{i}.jpg'
         control_image = Image.open("./res/openpose/openpose_2.png").resize((1024, 1024))
         inference_controlnet.ms_sd_generate_image(input_images,prompt,phrases,controlnet_conditioning_scales[j],msadapter_scales[i],control_image,boxes=boxes,result_path= result_path,save_name = save_name)
-        save_name = f'controlnet_conditioning_scale_{controlnet_conditioning_scales[j]}_{msadapter_scales[i]}_experiment_1_two_objects_1_{i}.jpg'
-        boxes_total = [[[0., 0., 0., 0.] for _ in range(2)]]
-        boxes = [boxes_total[0]]
-        inference_controlnet.ms_sd_generate_image(input_images[:2],prompt,[phrases[0][:2]],controlnet_conditioning_scales[j],msadapter_scales[i],control_image,boxes=boxes,result_path= result_path,save_name = save_name)
-        save_name = f'controlnet_conditioning_scale_{controlnet_conditioning_scales[j]}_{msadapter_scales[i]}_experiment_1_one_objects_1_{i}.jpg'
-        boxes_total = [[[0., 0., 0., 0.] for _ in range(1)]]
-        boxes = [boxes_total[0]]
-        inference_controlnet.ms_sd_generate_image(input_images[1],prompt,[phrases[0][1]],controlnet_conditioning_scales[j],msadapter_scales[i],control_image,boxes=boxes,result_path= result_path,save_name = save_name)
 
 

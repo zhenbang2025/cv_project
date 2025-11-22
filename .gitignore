@@ -13,3 +13,7 @@ __pycache__/
 examples/canny_douyin_dataset
 
 yolov8m.pt
+*.sbatch
+git rm *.txt
+
+*.out
