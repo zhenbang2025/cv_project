@@ -24,13 +24,12 @@ def get_phrases_idx(tokenizer, phrases, prompt):
     return res
 
 
-base_model_path = "/path/to/your/model"
-image_encoder_path = "/path/to/your/image_encoder"
+base_model_path = "/home/rjiangas/models/stabilityai/stable-diffusion-xl-base-1.0"
+image_encoder_path = "/home/rjiangas/models/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
 device = "cuda"
-result_path = "./res"
-log_id = "test"
-load_type = "checkpoint-xxxxxx"
-ms_ckpt = f"./output/{log_id}/{load_type}/ms_adapter.bin"
+# log_id = "test"
+load_type = "/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
+ms_ckpt = f"/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
 
 image_processor = CLIPImageProcessor()
 
@@ -63,21 +62,22 @@ image_proj_model = Resampler(
 ms_model = MSAdapter(pipe.unet, image_proj_model, ckpt_path=ms_ckpt, device=device, num_tokens=num_tokens)
 ms_model.to(device, dtype=torch.float16)
 
-image0 = Image.open("./examples/example_dog.jpg")
-image1 = Image.open("./examples/example_cat.jpg")
-input_images = [image0]
+image0 = Image.open("./examples/white_skirt.png")
+image1 = Image.open("./examples/blue_shirt.png")
+image2 = Image.open("./examples/bag_woman.png")
+input_images = [image0,image1,image2]
 # input_images = [image0, image1]
 input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
 
 # generation configs
 num_samples = 5
-prompt = "best quality, high quality, a dog on the beach"
+prompt = "An Korean women wearing a blue button-down shirt and a white skirt, carrying a sleek black handbag"
 # prompt = "best quality, high quality, a dog and cat on the beach"
 print(prompt)
-boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+# boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
 # boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
-# boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
-phrases = [["dog"]]
+boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
+phrases = [["shirt", "skirt","bag"]]
 # phrases = [["dog", "cat"]]
 drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
 
@@ -91,8 +91,8 @@ images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num
                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024)
 
-save_name = "dog"
-save_path = os.path.join(result_path, log_id, load_type, save_name)
+save_name = "three_object"
+save_path = os.path.join('./res/no_controlnet', save_name)
 os.makedirs(save_path, exist_ok=True)
 for i, image in enumerate(images):
     image.save(os.path.join(save_path, f"{i}.jpg"))

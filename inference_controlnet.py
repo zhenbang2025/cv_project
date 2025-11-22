@@ -34,9 +34,9 @@ ms_ckpt = f"/home/rjiangas/models/doge1516/MS-Diffusion/ms_adapter.bin"
 image_processor = CLIPImageProcessor()
 
 # controlnet
-controlnet_path = "/home/rjiangas/models/diffusers/controlnet-canny-sdxl-1.0"
+controlnet_path = "/home/rjiangas/models/thibaud/controlnet-openpose-sdxl-1.0"
 # load SDXL pipeline
-controlnet = ControlNetModel.from_pretrained(controlnet_path, variant="fp16", use_safetensors=True, torch_dtype=torch.float16).to(device)
+controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16).to(device)
 pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
     base_model_path,
     controlnet=controlnet,

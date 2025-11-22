@@ -12,5 +12,5 @@ echo "=== Job Start: $(date) ==="
 source activate ms_sd_infer
 # 卸载当前版本
 
-python inference.py
+python gradio.py
 # nvidia-smi
