@@ -20,16 +20,16 @@ Generate studio-style images of people with controlled clothing, accessories, an
 - Precise object positioning via bounding boxes
 
 ## 🎨 Experiment in **controlnet** visualization
-<img src="res/example_cat.jpg" alt="cat Image" width="250">
-<img src="res/example_dog.jpg" alt="dog Image" width="250">
+<img src="res_shown/example_cat.jpg" alt="cat Image" width="250">
+<img src="res_shown/example_dog.jpg" alt="dog Image" width="250">
 
 
 | ControlNet Combination | Result Preview |
 |---------------|----------------|
-| Baseline | ![Baseline](res/baseline.png) |
-| Depth + Canny |![Depth+Canny](res/group1_depth_canny.png) |
-| Depth + SoftEdge |![Depth+SoftEdge](res/Group_M2_Depth_Softedge​.png) |
-| Depth + Canny + SoftEdge |![Depth+Canny+SoftEdge](res/Group_M3_Depth_Canny_Softedge​.png) |
+| Baseline | ![Baseline](res_shown/baseline.png) |
+| Depth + Canny |![Depth+Canny](res_shown/group1_depth_canny.png) |
+| Depth + SoftEdge |![Depth+SoftEdge](res_shown/Group_M2_Depth_Softedge​.png) |
+| Depth + Canny + SoftEdge |![Depth+Canny+SoftEdge](res_shown/Group_M3_Depth_Canny_Softedge​.png) |
 
 ## 🎨 Evaluation
 
@@ -41,21 +41,21 @@ Baseline: DINO: 0.36; CLIP-T: 0.12​
 
 Improve DINO from 0.36 to 0.61 and improve CLIP-T from 0.12 to 0.32​
 
-<img src="res/DINO_CLIP_evaluate.png" alt="evaluation" width="800">
+<img src="res_shown/DINO_CLIP_evaluate.png" alt="evaluation" width="800">
 
 ## 🎨 Experiment in **FreeU** visualization
-<img src="res/freeu_exp2.png" alt="cat Image" width="500">
+<img src="res_shown/freeu_exp2.png" alt="cat Image" width="500">
 
 
 ## 🎨 Experiment in **Multi-object** visualization
 | object1                          | object2                          | object3                          | controlnet input                | result                              |
 |----------------------------------|----------------------------------|----------------------------------|----------------------------------|-------------------------------------|
-| <img src="res/bag_woman.png" width="100"> | <img src="res/blue_shirt.png" width="100"> | <img src="res/white_skirt.png" width="100"> |  ❌ | <img src="res/controlnet_3_object.png" width="100"> |
-| <img src="res/bag_woman.png" width="100"> | <img src="res/blue_shirt.png" width="100"> | <img src="res/white_skirt.png" width="100"> | <img src="res/woman_openpose.png" width="100"> | <img src="res/no_controlnet_3_object.jpg" width="100"> |
+| <img src="res_shown/bag_woman.png" width="100"> | <img src="res_shown/blue_shirt.png" width="100"> | <img src="res_shown/white_skirt.png" width="100"> |  ❌ | <img src="res_shown/controlnet_3_object.png" width="100"> |
+| <img src="res_shown/bag_woman.png" width="100"> | <img src="res_shown/blue_shirt.png" width="100"> | <img src="res_shown/white_skirt.png" width="100"> | <img src="res_shown/woman_openpose.png" width="100"> | <img src="res_shown/no_controlnet_3_object.jpg" width="100"> |
 
 | object1                          | object2                          | object3                          | object4                | result                              |
 |----------------------------------|----------------------------------|----------------------------------|----------------------------------|-------------------------------------|
-| <img src="res/blue_bag.png" width="100"> | <img src="res/laggage.png" width="100"> | <img src="res/model_face.png" width="100"> | <img src="res/pink_skirt.png" width="100"> | <img src="res/4_objectresult.png" width="100"> |
+| <img src="res_shown/blue_bag.png" width="100"> | <img src="res_shown/laggage.png" width="100"> | <img src="res_shown/model_face.png" width="100"> | <img src="res_shown/pink_skirt.png" width="100"> | <img src="res_shown/4_objectresult.png" width="100"> |
 
 ### Methodology: Multi-Subject Image Generation Pipeline
 This section details the **5-stage pipeline** for generating consistent, layout-aligned multi-subject images (used in Experiment 1: 2-subject generation of a grey cat + Corgi).
