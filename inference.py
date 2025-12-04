@@ -24,13 +24,25 @@ def get_phrases_idx(tokenizer, phrases, prompt):
     return res
 
 
-base_model_path = "/path/to/your/model"
-image_encoder_path = "/path/to/your/image_encoder"
-device = "cuda"
+# base_model_path = "/path/to/your/model"
+# image_encoder_path = "/path/to/your/image_encoder"
+# device = "cuda"
+# result_path = "./res"
+# log_id = "test"
+# load_type = "checkpoint-xxxxxx"
+# ms_ckpt = f"./output/{log_id}/{load_type}/ms_adapter.bin"
+
+base_model_path = "/home/hxiaoap/model/stabilityai/stable-diffusion-xl-base-1.0"
+image_encoder_path = "/home/hxiaoap/model/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 result_path = "./res"
 log_id = "test"
 load_type = "checkpoint-xxxxxx"
-ms_ckpt = f"./output/{log_id}/{load_type}/ms_adapter.bin"
+ms_ckpt = f"/home/hxiaoap/model/MS-Diffusion/ms_adapter.bin"
+
+
+
+
 
 image_processor = CLIPImageProcessor()
 
@@ -63,21 +75,139 @@ image_proj_model = Resampler(
 ms_model = MSAdapter(pipe.unet, image_proj_model, ckpt_path=ms_ckpt, device=device, num_tokens=num_tokens)
 ms_model.to(device, dtype=torch.float16)
 
-image0 = Image.open("./examples/example_dog.jpg")
-image1 = Image.open("./examples/example_cat.jpg")
+# image0 = Image.open("./examples/example_dog.jpg")
+# image1 = Image.open("./examples/example_cat.jpg")
+# # input_images = [image0]
+# input_images = [image0, image1]
+# input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
+
+# # generation configs
+# num_samples = 2
+# prompt = "The cat and the dog are playing by the seaside, with the cat's paw stroking the dog's head"
+# # prompt = "best quality, high quality, a dog and cat on the beach"
+# print(prompt)
+# # boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+# boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
+# # boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
+# # phrases = [["dog"]]
+# phrases = [["dog", "cat"]]
+# drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
+
+# # used to get the attention map, return zero if the phrase is not in the prompt
+# phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
+# eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
+# print(phrase_idxes, eot_idxes)
+
+# images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
+#                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
+#                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
+#                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024)
+
+# save_name = "dog"
+# save_path = os.path.join(result_path, log_id, load_type, save_name)
+# os.makedirs(save_path, exist_ok=True)
+# for i, image in enumerate(images):
+#     image.save(os.path.join(save_path, f"{i}.jpg"))
+
+
+
+
+# image0 = Image.open("./examples/figurine.png")
+# input_images = [image0]
+# # input_images = [image0, image1]
+# input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
+
+# # generation configs
+# num_samples = 2
+# prompt = "A figurine raises the hands"
+# # prompt = "best quality, high quality, a dog and cat on the beach"
+# print(prompt)
+# boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+# # boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
+# # boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
+# phrases = [["figurine"]]
+# # phrases = [["dog", "cat"]]
+# drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
+
+# # used to get the attention map, return zero if the phrase is not in the prompt
+# phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
+# eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
+# print(phrase_idxes, eot_idxes)
+
+# images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
+#                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
+#                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
+#                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024)
+
+# save_name = "figurine"
+# save_path = os.path.join(result_path, log_id, load_type, save_name)
+# os.makedirs(save_path, exist_ok=True)
+# for i, image in enumerate(images):
+#     image.save(os.path.join(save_path, f"{i}.jpg"))
+
+
+
+# image0 = Image.open("./examples/figurine.png")
+# image1 = Image.open("./examples/crystal_ball.png")
+# input_images = [image0, image1]
+# input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
+# prompts = ["a figurine, waving its right hand, next to a crystal ball, detailed, 4k",
+#            "A detailed porcelain figurine, waving its right hand happily, standing next to a glowing crystal ball, magical atmosphere, studio lighting, sharp focus, 8k",
+#            "(photorealistic porcelain figurine: 1.4), (waving its right hand: 1.3), sitting on a wooden table next to a (clear crystal ball: 1.3), studio lighting, soft shadows, shot on DSLR, 50mm lens, f/1.8, hyperdetailed, 8k",
+#            "(a magical clay figurine: 1.4), (waving its right hand: 1.3), sparks of magic from its hand, next to a (glowing ethereal crystal ball: 1.4), ancient spellbook on the table, fantasy, magical atmosphere, dramatic lighting, by Greg Rutkowski",
+#            "a charming figurine, waving its right hand, next to a simple crystal ball, minimalist illustration, clean lines, soft pastel colors, white background, trending on artstation"]
+
+# for i in range(5):
+#     # generation configs
+#     num_samples = 1
+#     prompt = prompts[i]
+#     # prompt = "best quality, high quality, a dog and cat on the beach"
+#     print(prompt)
+#     # boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+#     # boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
+#     boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
+#     phrases = [["figurine", "crystal ball"]]
+#     # phrases = [["dog", "cat"]]
+#     drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
+
+#     # used to get the attention map, return zero if the phrase is not in the prompt
+#     phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
+#     eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
+#     print(phrase_idxes, eot_idxes)
+
+#     images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
+#                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
+#                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
+#                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024)
+
+#     save_name = "figurineAndCrystalBall"
+#     save_path = os.path.join(result_path, log_id, load_type, save_name)
+#     os.makedirs(save_path, exist_ok=True)
+#     for j, image in enumerate(images):
+#         image.save(os.path.join(save_path, f"{i}.jpg"))
+
+
+image0 = Image.open("./examples/dress1.png")
+# image1 = Image.open("./examples/example_cat.jpg")
 input_images = [image0]
 # input_images = [image0, image1]
 input_images = [x.convert("RGB").resize((512, 512)) for x in input_images]
 
 # generation configs
-num_samples = 5
-prompt = "best quality, high quality, a dog on the beach"
+num_samples = 1
+prompt = "best quality, high quality, generate a model wearing this dress.White background"
 # prompt = "best quality, high quality, a dog and cat on the beach"
 print(prompt)
-boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
-# boxes = [[[0., 0.25, 0.4, 0.75], [0.6, 0.25, 1., 0.75]]]  # dog+cat
+# boxes = [[[0.25, 0.25, 0.75, 0.75]]]  # dog
+boxes_list = [
+    [[[0.2, 0.08, 0.8, 1.0]]],
+    [[[0.25, 0.08, 0.75, 1.0]]],
+    [[[0.28, 0.1, 0.78, 0.98]]],
+    [[[0.275, 0.1, 0.725, 1.0]]]
+]
+
 # boxes = [[[0., 0., 0., 0.], [0., 0., 0., 0.]]]  # used if you want no layout guidance
-phrases = [["dog"]]
+phrases = [["dress"]]
 # phrases = [["dog", "cat"]]
 drop_grounding_tokens = [0]  # set to 1 if you want to drop the grounding tokens
 
@@ -86,13 +216,20 @@ phrase_idxes = [get_phrases_idx(pipe.tokenizer, phrases[0], prompt)]
 eot_idxes = [[get_eot_idx(pipe.tokenizer, prompt)] * len(phrases[0])]
 print(phrase_idxes, eot_idxes)
 
-images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
+for j, boxes in enumerate(boxes_list):
+    images = ms_model.generate(pipe=pipe, pil_images=[input_images], num_samples=num_samples, num_inference_steps=30, seed=0,
                            prompt=[prompt], scale=0.6, image_encoder=image_encoder, image_processor=image_processor, boxes=boxes,
                            image_proj_type=image_proj_type, image_encoder_type=image_encoder_type, phrases=phrases, drop_grounding_tokens=drop_grounding_tokens,
                            phrase_idxes=phrase_idxes, eot_idxes=eot_idxes, height=1024, width=1024)
 
-save_name = "dog"
-save_path = os.path.join(result_path, log_id, load_type, save_name)
-os.makedirs(save_path, exist_ok=True)
-for i, image in enumerate(images):
-    image.save(os.path.join(save_path, f"{i}.jpg"))
+    save_name = "dog"
+    save_path = os.path.join(result_path, log_id, load_type, save_name)
+    os.makedirs(save_path, exist_ok=True)
+    for i, image in enumerate(images):
+        image.save(os.path.join(save_path, f"{j}.jpg"))
+
+
+
+
+
+

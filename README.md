@@ -1,142 +1,184 @@
-## <div align="center"> <i>MS-Diffusion</i>: Multi-subject Zero-shot Image Personalization with Layout Guidance </div>
+# MS-Diffusion: Multi-Control Image Generation with SDXL
 
-<div align="center">
+A flexible and powerful image generation pipeline combining **MS-Adapter**, **ControlNet (Multi-Control support)**, **SDXL Base/Refiner**, and **FreeU enhancement** for precise, high-quality image synthesis.
 
-  <a href="https://MS-Diffusion.github.io"><img src="https://img.shields.io/static/v1?label=Project%20Page&message=GitHub&color=blue&logo=github"></a> &ensp;
-  <a href="https://arxiv.org/abs/2406.07209"><img src="https://img.shields.io/static/v1?label=ArXiv&message=2406.07209&color=B31B1B&logo=arxiv"></a> &ensp;
-  <a href="https://huggingface.co/doge1516/MS-Diffusion"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Model&color=yellow"></a> &ensp;
+## 🌟 Key Features
+- Support for multiple ControlNet types (Depth, Canny, SoftEdge)
+- Seamless SDXL Base + Refiner integration for photorealistic results
+- FreeU enhancement for improved detail and contrast
+- Grounded generation with phrase-level control (via MS-Adapter)
+- Command-line configurable parameters (no hardcoded paths!)
+- Hugging Face Hub model auto-download (or local path support)
+- Breakpoint resume for model downloads
 
-</div>
+## 📷 Generation Theme
+**Focus: Fashion & Object Composition**  
+Generate studio-style images of people with controlled clothing, accessories, and backgrounds. Example use cases:
+- Person with specified clothing (dresses, jackets, etc.)
+- Controlled placement of accessories (bags, suitcases, hats)
+- Consistent background styling (solid colors, minimal scenes)
+- Precise object positioning via bounding boxes
 
----
+## 🎨 Experiment in **controlnet** visualization
+<img src="res/example_cat.jpg" alt="cat Image" width="250">
+<img src="res/example_dog.jpg" alt="dog Image" width="250">
 
-## News
 
-:sunglasses: [2025.02.12] **MS-Diffusion is accepted by ICLR 2025!** We have updated the paper and training code.
+| ControlNet Combination | Result Preview |
+|---------------|----------------|
+| Baseline | ![Baseline](res/baseline.png) |
+| Depth + Canny |![Depth+Canny](res/group1_depth_canny.png) |
+| Depth + SoftEdge |![Depth+SoftEdge](res/Group_M2_Depth_Softedge​.png) |
+| Depth + Canny + SoftEdge |![Depth+Canny+SoftEdge](res/Group_M3_Depth_Canny_Softedge​.png) |
 
-:mag_right: [2025.02.07] Our follow-up work MIP-Adapter is available at https://github.com/hqhQAQ/MIP-Adapter.
+## 🎨 Evaluation
 
-## Overview
+DINO – similarity between reference images to target image​
+CLIP-T – similarity between prompt and target image​
 
-![example](imgs/teaser_new.png)
 
-This repository contains the official implementation of the paper "MS-Diffusion: Multi-subject Zero-shot Image Personalization with Layout Guidance".
+Baseline: DINO: 0.36; CLIP-T: 0.12​
 
-Recent advancements in text-to-image generation models have dramatically enhanced the generation of photorealistic images from textual prompts, leading to an increased interest in personalized text-to-image applications, particularly in multi-subject scenarios. However, these advances are hindered by two main challenges: firstly, the need to accurately maintain the details of each referenced subject in accordance with the textual descriptions; and secondly, the difficulty in achieving a cohesive representation of multiple subjects in a single image without introducing inconsistencies. To address these concerns, our research introduces the MS-Diffusion framework for layout-guided zero-shot image personalization with multi-subjects. This innovative approach integrates grounding tokens with the feature resampler to maintain detail fidelity among subjects. With the layout guidance, MS-Diffusion further improves the cross-attention to adapt to the multi-subject inputs, ensuring that each subject condition acts on specific areas. The proposed multi-subject cross-attention orchestrates harmonious inter-subject compositions while preserving the control of texts. Comprehensive quantitative and qualitative experiments affirm that this method surpasses existing models in both image and text fidelity, promoting the development of personalized text-to-image generation.
+Improve DINO from 0.36 to 0.61 and improve CLIP-T from 0.12 to 0.32​
 
-**MS-Diffusion introduces two pivotal enhancements to the model**: the grounding resampler and multi-subject cross-attention mechanisms. 
-Firstly, the grounding resampler adeptly assimilates visual information, correlating it with specific entities and spatial constraints. 
-Subsequently, the cross-attention mechanism facilitates precise interactions between the image condition and the diffusion latent within the multi-subject attention layers. Throughout the training phase, all components of the pre-existing diffusion model remain frozen.
+<img src="res/DINO_CLIP_evaluate.png" alt="evaluation" width="800">
 
-![model](imgs/overall.png)
+## 🎨 Experiment in **FreeU** visualization
+<img src="res/freeu_exp2.png" alt="cat Image" width="500">
 
-## Community Resources
 
-Thanks to [smthemex](https://github.com/smthemex) for providing a [ComfyUI Version](https://github.com/smthemex/ComfyUI_MS_Diffusion).
+## 🎨 Experiment in **Multi-object** visualization
+| object1                          | object2                          | object3                          | controlnet input                | result                              |
+|----------------------------------|----------------------------------|----------------------------------|----------------------------------|-------------------------------------|
+| <img src="res/bag_woman.png" width="100"> | <img src="res/blue_shirt.png" width="100"> | <img src="res/white_skirt.png" width="100"> |  ❌ | <img src="res/controlnet_3_object.png" width="100"> |
+| <img src="res/bag_woman.png" width="100"> | <img src="res/blue_shirt.png" width="100"> | <img src="res/white_skirt.png" width="100"> | <img src="res/woman_openpose.png" width="100"> | <img src="res/no_controlnet_3_object.jpg" width="100"> |
 
-## Getting Started
+| object1                          | object2                          | object3                          | object4                | result                              |
+|----------------------------------|----------------------------------|----------------------------------|----------------------------------|-------------------------------------|
+| <img src="res/blue_bag.png" width="100"> | <img src="res/laggage.png" width="100"> | <img src="res/model_face.png" width="100"> | <img src="res/pink_skirt.png" width="100"> | <img src="res/4_objectresult.png" width="100"> |
 
-### Setup
+### Methodology: Multi-Subject Image Generation Pipeline
+This section details the **5-stage pipeline** for generating consistent, layout-aligned multi-subject images (used in Experiment 1: 2-subject generation of a grey cat + Corgi).
 
+
+#### Stage 1: VLM-Enhanced Prompt Construction
+| Input               | Method                                                                 | Purpose                                                                 |
+|---------------------|-----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| Reference subject images (grey cat, Corgi) | Use VLM (e.g., CLIP/GPT-4V) to extract semantic keywords (e.g., *"short-haired grey cat, fluffy white-brown Corgi"*) | Enrich prompt with subject-specific attributes to improve fidelity      |
+
+
+#### Stage 2: Base Image Generation via T2I Model
+**Input**: Enhanced prompt (e.g., *"The grey cat and Corgi are playing by the seaside, with the cat's paw stroking the dog's head"*)  
+**Method**: Use a high-quality T2I model (e.g., SDXL Base) to generate an initial base image.  
+**Key Constraint**: Prioritize *visual quality* (lighting, spatial relations, action) over subject consistency (no subject constraints here).  
+**Output**: Baseline image (see Experiment 1 results) with correct layout but potential subject deviation.
+
+
+#### Stage 3: Conditional Control Map Extraction
+**Input**: Base image (Stage 2)  
+**Method**: Extract control maps from the base image:
+- Depth map: Encodes 3D spatial layout (foreground/background separation)
+- Canny edge map: Captures object contours (e.g., cat/Corgi body shapes)
+- Soft edge map: Smooths edge textures for natural transitions  
+**Purpose**: Provide structural guidance to constrain layout consistency in later stages.
+
+
+#### Stage 4: Subject Bounding Box Extraction
+**Input**: Base image  
+**Method**: Use object detection (e.g., YOLOv8) to get *normalized (0–1 scale)* bounding boxes for each subject (e.g., `[0.13, 0.10, 0.56, 0.85]` for the cat).  
+**Purpose**: Define spatial regions for subjects to enforce layout alignment.
+
+
+#### Stage 5: Final Image Generation via MS-Diffusion
+**Input**:
+- Enhanced prompt (Stage 1)
+- Control maps (Stage 3)
+- Subject bounding boxes (Stage 4)
+- Tunable parameters (Experiment 1 variables: `Control scale` (0.2–0.9), `MS-Diffusion scale` (0.6–0.9), `Control types` (depth, canny, soft edge))
+
+**Method**: MS-Diffusion integrates inputs to balance:
+1. **Semantic content** (prompt)
+2. **Structural consistency** (control maps via ControlNet)
+3. **Spatial layout** (bounding boxes via MS-Diffusion guidance)
+
+**Experiment 1 Variables**:
+| Group       | Control Type Combination       | Tuned Scales                                  |
+|-------------|--------------------------------|-----------------------------------------------|
+| M1          | Depth + Canny                  | Control scale (0.2–0.9); MS scale (0.6/0.7/0.9) |
+| M2          | Depth + Softedge               | Same as M1                                    |
+| M3          | Depth + Canny + Softedge       | Same as M1                                    |
+
+**Output**: Final images (e.g., M1-1 to M1-8) with aligned layout + consistent subject appearance.
+
+
+### 3.6 Pipeline Validation (Experiment 1 Results)
+| Condition                  | Outcome                                                                 |
+|----------------------------|-------------------------------------------------------------------------|
+| Baseline (MS-Diffusion w/o ControlNet) | Subject inconsistency (e.g., cat fur color deviates from reference)     |
+| ControlNet-enhanced (M1–M3) | Preserves **subject fidelity** (cat/Corgi features) + **layout consistency** (bounding box alignment) |
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
 ```bash
-git clone git@github.com:MS-Diffusion/MS-Diffusion.git
-cd msdiffusion
+git clone https://github.com/your-username/ms-diffusion.git
+```
+### 2. Install Dependencies
+```bash
+cd ms-diffusion
 pip install -r requirements.txt
 ```
-
-### Model
-
-Download the pretrained base models from [SDXL-base-1.0](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) and [CLIP-G](https://huggingface.co/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k).
-
-Download our checkpoint from [MS-Diffusion](https://huggingface.co/doge1516/MS-Diffusion).
-
-### Inference
-
+# Download Models
 ```bash
-python inference.py
+chmod +x download_models.sh
+# Run the download script
+# Linux/macOS
+./download_models.sh
 ```
 
-You should add the pretrained model and referenced subject paths in the script. In practice, masked images would be better since they contain no irrelevant information. Modify `phrases` and `boxes` to fit your needs. Note that the `phrases` and `boxes` should be in the same order with input images.
+### 4. Prepare Control Images
+Place your control images in the examples/ directory (or specify custom paths via CLI):
+Depth map: examples/depth_v6.png
+Canny edge: examples/canny_v6.png
+Soft edge: examples/soft_edge_v6.png
+### 5. Run Generation
+Use the command-line interface to configure your experiment. Example commands:
 
-The `scale` parameter is used to determine the extent of image control. For default, the `scale` is set to 0.6. In practice, the `scale` of 0.4 would be better if your input contains subjects needing to effect on the whole image, such as the background. **Feel free to adjust the `scale` in your applications.**
-
-If you want to inference with controlnets, please set up your controlnet models and run:
-
+Basic Run (Default Parameters)
 ```bash
-python inference_controlnet.py
+python main.py \
+  --base_model_path ./hf_models/stabilityai/stable-diffusion-xl-base-1.0 \
+  --refiner_model_path ./hf_models/stabilityai/stable-diffusion-xl-refiner-1.0 \
+  --control_types "depth,softedge" \
+  --cn_scales "0.9,0.7" \
+  --ms_scale 0.8 \
+  --use_refiner \
+  --use_freeu \
+  --prompt "A woman wearing a red dress, holding a black bag, grey background" \
+  --phrases "woman,dress,bag,background" \
+  --boxes "0.13,0.10,0.56,0.85;0.13,0.10,0.56,0.85;0.30,0.34,0.42,0.49;0.0,0.0,1.0,1.0" \
+  --exp_id "custom-red-dress" \
+  --num_samples 2
 ```
 
-### Train
+#### model settings
+| Model | Hugging Face Repo | Local Path (after download) |
+|-------|-------------------|------------------------------|
+| SDXL Base | stabilityai/stable-diffusion-xl-base-1.0 | `./hf_models/stabilityai/stable-diffusion-xl-base-1.0` |
+| SDXL Refiner | stabilityai/stable-diffusion-xl-refiner-1.0 | `./hf_models/stabilityai/stable-diffusion-xl-refiner-1.0` |
+| CLIP Encoder | laion/CLIP-ViT-bigG-14-laion2B-39B-b160k | `./hf_models/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k` |
+| Depth ControlNet | diffusers/controlnet-depth-sdxl-1.0 | `./hf_models/diffusers/controlnet-depth-sdxl-1.0` |
+| Canny ControlNet | diffusers/controlnet-canny-sdxl-1.0 | `./hf_models/diffusers/controlnet-canny-sdxl-1.0` |
+| SoftEdge ControlNet | diffusers/controlnet-softedge-sdxl-1.0 | `./hf_models/diffusers/controlnet-softedge-sdxl-1.0` |
 
-Before training, you can prepare your dataset in `./msdiffusion/dataset/datagenerator.py`. We have provided an example of the data reading.
-
-The training configs are in `./config.py`. You can modify the configs to fit your needs.
-
-Modify and run the script to start training:
-
-```bash
-sh scripts/train.sh 1
-```
-
-## Benchmark
-
-[**New**] Now MS-Bench is also available in [HuggingFace](https://huggingface.co/datasets/doge1516/MS-Bench).
-
-We provide the proposed MS-Bench in `./msbench`. The prompt template is in `./msdiffusion/dataset/prompts/msbench.py`.
-
-MS-Bench contains four data types and 13 combination types with two or three subjects. Each combination type other than those related to the scene has 6 prompt variations. There are 1148 combinations and 4488 evaluation samples, where entities and boxes are subject categories and preset layouts. Compared to other multi-subject benchmarks, our MS-Bench ensures that the model performance can be reflected comprehensively in abundant cases.
-
-Details can be found in the paper.
-
-## Todo List
-
-- [x] paper
-- [x] inference code
-- [x] model weights
-- [x] training code
-
-## New Features
-
-### Auto Layout Guidance
-
-You may find the layout prior is hard to determine in some cases. MS-Diffusion now supports using the text cross-attention maps as the psuedo layout guidance. Specifically, since the text cross-attention maps can reflect the area of each text token, we can replace the layout prior with them during the inference. You can enable this feature easily by:
-
-```python
-images = ms_model.generate(..., mask_threshold=0.5, start_step=5)
-```
-
-Here, `mask_threshold` is used to filter the text cross-attention maps, and `start_step` is the step to start using the psuedo layout guidance. In this way, you can provide a rough box input. MS-Diffusion still uses the layout prior before the `start_step` and then switches to the areas where the activation value in the text cross-attention maps is larger than the `mask_threshold`. Note that you have to ensure the `phrases` can be found in the text when you use this feature. The generation quality depends on the accuracy of the text cross-attention maps.
-
-This feature is found to be useful when the subject boxes are overlapping, such as "object+scene". With the auto layout guidance, you could also increase the `scale` for higher image fidelity.
-
-You can also completely disable the layout prior by setting `boxes` to zeros and `drop_grounding_tokens` to 1. However, we have found a degradation in the generation quality when using this setting. We recommend using the layout prior at early steps.
-
-### Multi-Subject Scales
-
-Now MS-Diffusion supports different scales for different subjects during the inference. You can set the `subject_scales` when calling the `generate()` function:
-
-```python
-subject_scales = [0.6, 0.8]
-images = ms_model.generate(..., subject_scales=subject_scales)
-```
-
-When using `subject_scales`, `scale` will have no effect on the model.
-
-## Acknowledgement
-
-This repository is built based on the fancy, robust, and extensible work of [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter). We also thank StabilityAI and HuggingFace for their contribution to the open source community.
-
-## Citation
-
-If you find this work helpful, please consider citing:
-
-```bibtex
-@inproceedings{
-  wang2025msdiffusion,
-  title={{MS}-Diffusion: Multi-subject Zero-shot Image Personalization with Layout Guidance},
-  author={Xierui Wang and Siming Fu and Qihan Huang and Wanggui He and Hao Jiang},
-  booktitle={The Thirteenth International Conference on Learning Representations},
-  year={2025},
-  url={https://openreview.net/forum?id=PJqP0wyQek}
-}
-```
+### Custom Parameters
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--control_types` | Comma-separated ControlNet types (depth/canny/softedge) | `depth,softedge` |
+| `--cn_scales` | ControlNet strength scales (one per control type) | `0.9,0.7` |
+| `--ms_scale` | MS-Adapter grounding strength | `0.8` |
+| `--use_refiner` | Enable SDXL Refiner for high-quality output | `False` |
+| `--use_freeu` | Enable FreeU enhancement for better details | `False` |
+| `--num_samples` | Number of images to generate per run | `1` |
+| `--prompt` | Text prompt for image generation | `Fashion-focused default` |
+| `--boxes` | Normalized bounding boxes for object positioning | `Default fashion layout` |
